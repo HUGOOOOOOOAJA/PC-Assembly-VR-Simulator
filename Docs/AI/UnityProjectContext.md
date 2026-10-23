@@ -46,15 +46,15 @@ Objetos identificados na serialização de `SampleScene`:
 - `Interior Scene`, modelo `Assets/interior-scene/source/Interior Scene.fbx`.
 - `Desk_fbx`, modelo `Assets/source/Desk_fbx.fbx`.
 - `MSI_Z790`, modelo `Assets/motherboard-msi-z790-low-poly/source/MSI_Z790/MSI_Z790.obj`.
-- RAM chamada `tripo_convert_9a531e71-e6a4-428c-9d31-32806128088d`, modelo em `Assets/ddr5+memory+module+3d+model/`.
-- `RAM_SLOT_1` e seu filho `RAM_Attach`.
+- Quatro memórias `RAM_1` a `RAM_4`, modelo original `tripo_convert_9a531e71-e6a4-428c-9d31-32806128088d` em `Assets/ddr5+memory+module+3d+model/`.
+- `RAM_SLOT_1` a `RAM_SLOT_4`, cada um com seu filho `RAM_Attach`.
 - `Cup`, `Plate`, `Bottle`, `WineGlass`, `PorcelainVase`, `Cube`, `hollow Knight` e `Hornet`.
 
 Existem outras pastas importadas, incluindo `ddr5-ram-teamgroup-t-force-black`, `Motherboad+B450M+Steel+Legend+FBX+Low+Poly-+@ggenzet`, `hollow-knight-model` e `hornet`. A presença de uma pasta não prova que o modelo correspondente esteja sendo usado na cena.
 
 ## Conexão RAM / placa-mãe
 
-Implementada principalmente por componentes e referências serializadas do XRI, não por um script customizado de encaixe encontrado nesta análise.
+Implementada por componentes e referências serializadas do XRI, com validação customizada em `Assets/Scripts/RamSocketFilter.cs` desde 22/10/2026.
 
 | Elemento | Configuração salva |
 | --- | --- |
@@ -62,16 +62,29 @@ Implementada principalmente por componentes e referências serializadas do XRI, 
 | Camadas XRI da RAM | bits 3 = Default + RAM |
 | Rigidbody da RAM | massa 1; gravidade ativa; não cinemático no estado inicial |
 | Grab da RAM | rastreia posição e rotação; dynamic attach ativo; seleção única |
-| RAM_SLOT_1 | filho do transform da instância MSI_Z790; XRSocketInteractor e BoxCollider trigger |
+| RAM_SLOT_1 a RAM_SLOT_4 | filhos do transform da instância MSI_Z790; XRSocketInteractor, BoxCollider trigger e RamSocketFilter |
 | Camada XRI do socket | bits 2 = RAM |
 | Socket ativo | sim; recycle delay 1; sem starting selected interactable |
 | Attach do socket | RAM_Attach, transform fileID 1043108920 |
-| Posição local do slot | x 0.82, y 1.11, z 0.098 |
+| Posições locais dos slots | x 0.82, z 0.098; y 1.115080, 0.991155, 0.866493, 0.742568 respectivamente |
 | RAM_Attach | posição local zero, rotação identidade, escala 1 |
 
 `Assets/XRI/Settings/Resources/InteractionLayerSettings.asset`: Default no índice 0, RAM no índice 1, Teleport no índice 31. São camadas de interação XRI; não confundir com layers da física do Unity.
 
 O socket usa o XR Interaction Manager explícito da cena. Os UnityEvents de seleção do socket estavam vazios: não inferir pontuação, checklist de montagem ou validação educacional adicional. Outros objetos interagíveis usam predominantemente Default (bits 1).
+
+### Quatro memórias e validação de inserção (22/10/2026)
+
+- Adicionadas três cópias interagíveis da RAM original sobre a mesa. Qualquer uma das quatro pode ocupar qualquer slot livre; cada socket referencia as mesmas quatro memórias no filtro.
+- Os centros dos quatro slots foram medidos na geometria DDR5 do modelo da placa-mãe, não espaçados por estimativa. No modelo da RAM, os contatos dourados ficam em Z local próximo de zero e o corpo cresce em +Z. A rotação de `RAM_Attach` mantém esses contatos para baixo.
+- Espessura das quatro RAMs reduzida apenas no eixo Y local: escala de 0.21511 para 0.1613325. Comprimento e altura preservados. Isso evita sobreposição dos módulos, pois o passo entre slots é aproximadamente 13.9 mm e a espessura anterior era 16.1 mm; agora é 12.1 mm.
+- `RamSocketFilter` registra filtros de hover e seleção em OnEnable e remove em OnDisable. Confere os attaches do par RAM/socket, não o dynamic attach da mão. Exige rotação completa a até 12 graus e deslocamento em metros nos eixos do attach de até X=20 mm, Y=4.5 mm, Z=18 mm. A tolerância lateral menor que meio passo impede captura pelo slot vizinho. Rotações invertidas ou de lado não passam.
+- Para iniciar uma seleção, exige velocidades linear até 0.4 m/s e angular até 2 rad/s. Bloqueia também o mesmo frame do evento de soltura: o XRI só aplica a velocidade de lançamento em Late, e uma verificação imediata de Rigidbody sozinha permitiria capturar um arremesso antes disso.
+- RAM já selecionada pelo próprio socket continua válida durante o movimento de ajuste. A regra não bloqueia agarrar ou retirar a RAM com as mãos. `Hover Socket Snapping` continua desligado para não corrigir artificialmente uma orientação inválida antes da validação.
+- Não foram alterados rig, PinchPointFollow, iluminação, posição da placa-mãe, mesa ou cenário nesta tarefa.
+- Validação: reprodução inicial mostrou o socket aceitando poses erradas. Após a correção, um verificador temporário no Editor executou 157 verificações em cada um de dois ciclos consecutivos de Play, ambas com zero falhas: nove poses/velocidades nas 16 combinações RAM/slot, bloqueio no frame da soltura, velocidade de lançamento no frame seguinte, captura automática sequencial dos quatro módulos, ocupação, retenção, retirada e recolocação. Os testes atravessam a interface `IXRSelectInteractor.CanSelect`, que processa os filtros; chamar apenas o método público `XRSocketInteractor.CanSelect` não os processa.
+- No primeiro diagnóstico, teleportar simultaneamente quatro corpos por Transform causou resultado físico instável no slot 3. O verificador foi corrigido para restaurar a pose do Rigidbody e montar uma memória de cada vez, como no uso esperado. Não foi afrouxado o filtro nem alterado contactOffset para esconder esse resultado.
+- Não houve teste com mãos/headset ou build Android nesta tarefa. O Console em Play mostrou avisos de ausência de eye tracking e de subsistema de mãos, compatíveis com não haver headset conectado; não houve erro de compilação. O verificador temporário foi removido depois dos testes. A validação física com headset continua pendente.
 
 ## Rig XR e raio de seleção
 
@@ -124,6 +137,17 @@ Há scripts do template e dos samples para locomoção, gestos, UI e interaçõe
 - Não prometer que todos os objetos podem ser agarrados à distância só pela presença de XRGrabInteractable.
 
 ## Como continuar o trabalho
+
+### Iluminação adicionada em 22/10/2026
+
+Foi adicionado à SampleScene o grupo `Workshop Lighting`, sem mover os modelos ou alterar os componentes XR/RAM:
+
+- Lustre Central - Quente: Point no centro do mesh `Interior_scene_complete:bulb:polySurface80`, intensidade 3.5, alcance 6.5.
+- Lustre Esquerdo - Quente: Point na luminária `Interior_scene_complete:pCylinder298`, intensidade 0.85, alcance 3.2.
+- Lustre Direito - Quente: Point na luminária `Interior_scene_complete:pCylinder45`, intensidade 0.85, alcance 3.2.
+- Bancada - Foco Superior: Spot acima do centro da mesa, altura mundial 2.65, rotação X=90 (para baixo), intensidade 2, alcance 3.6, cone externo 78 graus e interno 48 graus.
+
+As quatro luzes usam cores quentes, Realtime e nenhuma sombra em tempo real. O perfil `Performance URP Config.asset` foi ajustado para luzes adicionais por pixel e limite de quatro por objeto; antes elas estavam desabilitadas. O custo no headset ainda precisa ser medido. Aparência revisada no Scene View com iluminação da cena ativada, sem headset. O script temporário usado para posicionar as luzes por bounds dos modelos foi removido; as luzes estão salvas como objetos normais da cena.
 
 Antes de cada nova tarefa: ler este arquivo, conferir git status e as referências atuais da cena. Identificar o objeto/componente da mudança, preservar o cenário e a montagem existentes, manter arquivos .meta e GUIDs. Fazer mudanças focadas e atualizar este documento quando houver alteração relevante.
 
