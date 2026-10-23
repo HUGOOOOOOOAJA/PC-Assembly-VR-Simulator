@@ -1,0 +1,354 @@
+# Blender MTL File: 'MSI Z790.blend'
+# Material Count: 32
+
+newmtl Connector
+Ns 0.000000
+Ka 1.000000 1.000000 1.000000
+Kd 1.000000 1.000000 1.000000
+Ks 0.000000 0.000000 0.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+d 1.000000
+illum 1
+map_Kd C:\\Users\\HYPERPC\\Downloads\\Archive\\Connector-color.png
+
+newmtl Connector.001
+Ns 0.000000
+Ka 1.000000 1.000000 1.000000
+Kd 1.000000 1.000000 1.000000
+Ks 0.000000 0.000000 0.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+d 1.000000
+illum 1
+map_Kd C:\\Users\\HYPERPC\\Downloads\\Archive\\Connector.001-color.png
+
+newmtl Connector.002
+Ns 0.000000
+Ka 1.000000 1.000000 1.000000
+Kd 1.000000 1.000000 1.000000
+Ks 0.000000 0.000000 0.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+d 1.000000
+illum 1
+map_Kd C:\\Users\\HYPERPC\\Downloads\\Archive\\Connector.002-color.png
+
+newmtl Connector.003
+Ns 0.000000
+Ka 1.000000 1.000000 1.000000
+Kd 1.000000 1.000000 1.000000
+Ks 0.000000 0.000000 0.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+d 1.000000
+illum 1
+map_Kd C:\\Users\\HYPERPC\\Downloads\\Archive\\Connector.003-color.png
+
+newmtl Connector.004
+Ns 0.000000
+Ka 1.000000 1.000000 1.000000
+Kd 1.000000 1.000000 1.000000
+Ks 0.000000 0.000000 0.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+d 1.000000
+illum 1
+map_Kd C:\\Users\\HYPERPC\\Downloads\\Archive\\Connector.004-color.png
+
+newmtl Connector.005
+Ns 0.000000
+Ka 1.000000 1.000000 1.000000
+Kd 1.000000 1.000000 1.000000
+Ks 0.000000 0.000000 0.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+d 1.000000
+illum 1
+map_Kd C:\\Users\\HYPERPC\\Downloads\\Archive\\Connector.005-color.png
+
+newmtl Connector.006
+Ns 0.000000
+Ka 1.000000 1.000000 1.000000
+Kd 1.000000 1.000000 1.000000
+Ks 0.000000 0.000000 0.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+d 1.000000
+illum 1
+map_Kd C:\\Users\\HYPERPC\\Downloads\\Archive\\Connector.006-color.png
+
+newmtl Connector.007
+Ns 0.000000
+Ka 1.000000 1.000000 1.000000
+Kd 1.000000 1.000000 1.000000
+Ks 0.000000 0.000000 0.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+d 1.000000
+illum 1
+map_Kd C:\\Users\\HYPERPC\\Downloads\\Archive\\Connector.007-color.png
+
+newmtl Connector.008
+Ns 0.000000
+Ka 1.000000 1.000000 1.000000
+Kd 1.000000 1.000000 1.000000
+Ks 0.000000 0.000000 0.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+d 1.000000
+illum 1
+map_Kd C:\\Users\\HYPERPC\\Downloads\\Archive\\Connector.008-color.png
+
+newmtl Connector.009
+Ns 0.000000
+Ka 1.000000 1.000000 1.000000
+Kd 1.000000 1.000000 1.000000
+Ks 0.000000 0.000000 0.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+d 1.000000
+illum 1
+map_Kd C:\\Users\\HYPERPC\\Downloads\\Archive\\Connector.009-color.png
+
+newmtl Connector.010
+Ns 0.000000
+Ka 1.000000 1.000000 1.000000
+Kd 1.000000 1.000000 1.000000
+Ks 0.000000 0.000000 0.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+d 1.000000
+illum 1
+map_Kd C:\\Users\\HYPERPC\\Downloads\\Archive\\Connector.010-color.png
+
+newmtl Connector.011
+Ns 0.000000
+Ka 1.000000 1.000000 1.000000
+Kd 1.000000 1.000000 1.000000
+Ks 0.000000 0.000000 0.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+d 1.000000
+illum 1
+map_Kd C:\\Users\\HYPERPC\\Downloads\\Archive\\Connector.011-color.png
+
+newmtl Connector.012
+Ns 0.000000
+Ka 1.000000 1.000000 1.000000
+Kd 1.000000 1.000000 1.000000
+Ks 0.000000 0.000000 0.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+d 1.000000
+illum 1
+map_Kd C:\\Users\\HYPERPC\\Downloads\\Archive\\Connector.012-color.png
+
+newmtl Connector.013
+Ns 0.000000
+Ka 1.000000 1.000000 1.000000
+Kd 1.000000 1.000000 1.000000
+Ks 0.000000 0.000000 0.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+d 1.000000
+illum 1
+map_Kd C:\\Users\\HYPERPC\\Downloads\\Archive\\Connector.013-color.png
+
+newmtl Connector.014
+Ns 0.000000
+Ka 1.000000 1.000000 1.000000
+Kd 1.000000 1.000000 1.000000
+Ks 0.000000 0.000000 0.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+d 1.000000
+illum 1
+map_Kd C:\\Users\\HYPERPC\\Downloads\\Archive\\Connector.014-color.png
+
+newmtl Connector.015
+Ns 0.000000
+Ka 1.000000 1.000000 1.000000
+Kd 1.000000 1.000000 1.000000
+Ks 0.000000 0.000000 0.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+d 1.000000
+illum 1
+map_Kd C:\\Users\\HYPERPC\\Downloads\\Archive\\Connector.015-color.png
+
+newmtl Connector.016
+Ns 0.000000
+Ka 1.000000 1.000000 1.000000
+Kd 1.000000 1.000000 1.000000
+Ks 0.000000 0.000000 0.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+d 1.000000
+illum 1
+map_Kd C:\\Users\\HYPERPC\\Downloads\\Archive\\Connector.016-color.png
+
+newmtl Connector.017
+Ns 0.000000
+Ka 1.000000 1.000000 1.000000
+Kd 1.000000 1.000000 1.000000
+Ks 0.000000 0.000000 0.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+d 1.000000
+illum 1
+map_Kd C:\\Users\\HYPERPC\\Downloads\\Archive\\Connector.017-color.png
+
+newmtl Connector.018
+Ns 0.000000
+Ka 1.000000 1.000000 1.000000
+Kd 1.000000 1.000000 1.000000
+Ks 0.000000 0.000000 0.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+d 1.000000
+illum 1
+map_Kd C:\\Users\\HYPERPC\\Downloads\\Archive\\Connector.018-color.png
+
+newmtl Connector.019
+Ns 0.000000
+Ka 1.000000 1.000000 1.000000
+Kd 1.000000 1.000000 1.000000
+Ks 0.000000 0.000000 0.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+d 1.000000
+illum 1
+map_Kd C:\\Users\\HYPERPC\\Downloads\\Archive\\Connector.019-color.png
+
+newmtl Connector.020
+Ns 0.000000
+Ka 1.000000 1.000000 1.000000
+Kd 1.000000 1.000000 1.000000
+Ks 0.000000 0.000000 0.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+d 1.000000
+illum 1
+map_Kd C:\\Users\\HYPERPC\\Downloads\\Archive\\Connector.020-color.png
+
+newmtl Connector.021
+Ns 0.000000
+Ka 1.000000 1.000000 1.000000
+Kd 1.000000 1.000000 1.000000
+Ks 0.000000 0.000000 0.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+d 1.000000
+illum 1
+map_Kd C:\\Users\\HYPERPC\\Downloads\\Archive\\Connector.021-color.png
+
+newmtl Connector.022
+Ns 0.000000
+Ka 1.000000 1.000000 1.000000
+Kd 1.000000 1.000000 1.000000
+Ks 0.000000 0.000000 0.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+d 1.000000
+illum 1
+map_Kd C:\\Users\\HYPERPC\\Downloads\\Archive\\Connector.022-color.png
+
+newmtl Connector.023
+Ns 0.000000
+Ka 1.000000 1.000000 1.000000
+Kd 1.000000 1.000000 1.000000
+Ks 0.000000 0.000000 0.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+d 1.000000
+illum 1
+map_Kd C:\\Users\\HYPERPC\\Downloads\\Archive\\Connector.023-color.png
+
+newmtl Connector.024
+Ns 0.000000
+Ka 1.000000 1.000000 1.000000
+Kd 1.000000 1.000000 1.000000
+Ks 0.000000 0.000000 0.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+d 1.000000
+illum 1
+map_Kd C:\\Users\\HYPERPC\\Downloads\\Archive\\Connector.024-color.png
+
+newmtl Connector.025
+Ns 0.000000
+Ka 1.000000 1.000000 1.000000
+Kd 1.000000 1.000000 1.000000
+Ks 0.000000 0.000000 0.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+d 1.000000
+illum 1
+map_Kd C:\\Users\\HYPERPC\\Downloads\\Archive\\Connector.025-color.png
+
+newmtl Connector.026
+Ns 0.000000
+Ka 1.000000 1.000000 1.000000
+Kd 1.000000 1.000000 1.000000
+Ks 0.000000 0.000000 0.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+d 1.000000
+illum 1
+map_Kd C:\\Users\\HYPERPC\\Downloads\\Archive\\Connector.026-color.png
+
+newmtl DDR5
+Ns 0.000000
+Ka 1.000000 1.000000 1.000000
+Kd 1.000000 1.000000 1.000000
+Ks 0.000000 0.000000 0.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+d 1.000000
+illum 1
+map_Kd C:\\Users\\HYPERPC\\Downloads\\Archive\\DDR5-color.png
+
+newmtl Motherboard_Black
+Ns 0.000000
+Ka 1.000000 1.000000 1.000000
+Kd 1.000000 1.000000 1.000000
+Ks 0.000000 0.000000 0.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+d 1.000000
+illum 1
+map_Kd C:\\Users\\HYPERPC\\Downloads\\Archive\\Motherboard_Black-color.png
+
+newmtl Motherboard_Metall
+Ns 0.000000
+Ka 1.000000 1.000000 1.000000
+Kd 1.000000 1.000000 1.000000
+Ks 0.000000 0.000000 0.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+d 1.000000
+illum 1
+map_Kd C:\\Users\\HYPERPC\\Downloads\\Archive\\Motherboard_Metall-color.png
+
+newmtl Motherboard_Metall.001
+Ns 0.000000
+Ka 1.000000 1.000000 1.000000
+Kd 1.000000 1.000000 1.000000
+Ks 0.000000 0.000000 0.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+d 1.000000
+illum 1
+map_Kd C:\\Users\\HYPERPC\\Downloads\\Archive\\Motherboard_Metall.001-color.png
+
+newmtl None
+Ns 0.000000
+Ka 1.000000 1.000000 1.000000
+Kd 1.000000 1.000000 1.000000
+Ks 0.000000 0.000000 0.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+d 1.000000
+illum 1
+map_Kd C:\\Users\\HYPERPC\\Downloads\\Archive\\None-color.png

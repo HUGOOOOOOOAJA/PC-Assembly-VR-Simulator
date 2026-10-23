@@ -149,6 +149,55 @@ namespace UnityEngine.XR.Interaction.Toolkit.Samples.Hands
             // Hand pose data is in local space relative to the XR Origin.
             transform.localPosition = filteredTargetPos;
 
+#if XR_HANDS_1_5_OR_NEWER
+            if (m_HasTargetRotationTransform && args.subsystem != null)
+            {
+                var gestures = args.hand.handedness == Handedness.Left
+                    ? args.subsystem.leftHandCommonGestures
+                    : args.subsystem.rightHandCommonGestures;
+                var aimPose = Pose.identity;
+                var hasAimPose = gestures != null && gestures.TryGetAimPose(out aimPose);
+                if (!hasAimPose)
+                {
+                    var aimHand = args.hand.handedness == Handedness.Left ? MetaAimHand.left : MetaAimHand.right;
+                    if (aimHand != null && aimHand.isTracked.ReadValue() > 0f)
+                    {
+                        aimPose = new Pose(aimHand.devicePosition.ReadValue(), aimHand.deviceRotation.ReadValue());
+                        hasAimPose = true;
+                    }
+                }
+
+                if (!hasAimPose &&
+                    args.hand.GetJoint(XRHandJointID.Wrist).TryGetPose(out var wristPose) &&
+                    args.hand.GetJoint(XRHandJointID.IndexProximal).TryGetPose(out var indexBasePose))
+                {
+                    var direction = indexBasePose.position - wristPose.position;
+                    if (direction.sqrMagnitude > 0.000001f)
+                    {
+                        var upwards = Vector3.up;
+                        if (Mathf.Abs(Vector3.Dot(direction.normalized, upwards)) > 0.99f)
+                            upwards = Vector3.forward;
+                        aimPose = new Pose(targetPos, Quaternion.LookRotation(direction, upwards));
+                        hasAimPose = true;
+                    }
+                }
+
+                if (hasAimPose)
+                {
+                    var poseDriver = m_TargetRotation.GetComponent<UnityEngine.InputSystem.XR.TrackedPoseDriver>();
+                    if (poseDriver != null)
+                        poseDriver.enabled = false;
+
+                    var trackingOrigin = transform.parent;
+                    m_TargetRotation.SetPositionAndRotation(
+                        trackingOrigin != null ? trackingOrigin.TransformPoint(aimPose.position) : aimPose.position,
+                        trackingOrigin != null ? trackingOrigin.rotation * aimPose.rotation : aimPose.rotation);
+                    transform.rotation = m_TargetRotation.rotation;
+                    return;
+                }
+            }
+#endif
+
             if (m_HasTargetRotationTransform && m_HasRayProvider)
             {
                 // Given that the ray endpoint is in world space, we need to use the world space transform of this point to determine the target rotation.
