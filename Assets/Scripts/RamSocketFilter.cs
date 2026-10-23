@@ -18,12 +18,14 @@ public sealed class RamSocketFilter : MonoBehaviour, IXRHoverFilter, IXRSelectFi
 
     readonly Dictionary<IXRSelectInteractable, int> m_ReleaseFrames = new Dictionary<IXRSelectInteractable, int>();
     XRSocketInteractor m_Socket;
+    RamSlotLatches m_Latches;
 
     public bool canProcess => isActiveAndEnabled;
 
     void OnEnable()
     {
         m_Socket = GetComponent<XRSocketInteractor>();
+        m_Latches = GetComponent<RamSlotLatches>();
         m_Socket.hoverFilters.Add(this);
         m_Socket.selectFilters.Add(this);
         foreach (var module in m_Modules)
@@ -77,6 +79,8 @@ public sealed class RamSocketFilter : MonoBehaviour, IXRHoverFilter, IXRSelectFi
             return false;
         if (m_Socket.IsSelecting(module))
             return true;
+        if (m_Latches == null || !m_Latches.IsOpen)
+            return false;
         var target = m_Socket.GetAttachTransform(module);
         var source = module.GetAttachTransform(m_Socket);
         var offset = Quaternion.Inverse(target.rotation) * (source.position - target.position);
