@@ -16,4 +16,14 @@ public sealed class RamSlotLatches : MonoBehaviour
     public bool IsFocused => (m_LeftLatch != null && (m_LeftLatch.isHovered || m_LeftLatch.isSelected)) ||
         (m_RightLatch != null && (m_RightLatch.isHovered || m_RightLatch.isSelected));
     public XRSocketInteractor Socket => m_Socket;
+
+    public void CloseForInstallation(float progress)
+    {
+        if (m_LeftLatch != null && m_RightLatch != null && m_Socket != null && m_Socket.hasSelection &&
+            !m_LeftLatch.isSelected && !m_RightLatch.isSelected)
+        {
+            m_LeftLatch.CloseForInstallation(progress);
+            m_RightLatch.CloseForInstallation(progress);
+        }
+    }
 }

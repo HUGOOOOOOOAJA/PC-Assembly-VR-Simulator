@@ -23,6 +23,12 @@ public sealed class RamLatch : XRBaseInteractable
     public bool IsOpen => m_Angle >= Mathf.Min(45f, m_OpenAngle);
     public float Angle => m_Angle;
 
+    public void CloseForInstallation(float progress)
+    {
+        if (m_Socket != null && m_Socket.hasSelection && !isSelected)
+            SetAngle(m_OpenAngle * (1f - Mathf.Clamp01(progress)));
+    }
+
     protected override void Awake()
     {
         base.Awake();

@@ -8,6 +8,7 @@ public sealed class RamAssemblyHint : MonoBehaviour
     [SerializeField] RamSlotLatches[] m_Slots = System.Array.Empty<RamSlotLatches>();
     [SerializeField] XRGrabInteractable[] m_Modules = System.Array.Empty<XRGrabInteractable>();
     [SerializeField] TMP_Text m_Label;
+    [SerializeField] RamPressCoordinator m_PressCoordinator;
 
     void OnEnable()
     {
@@ -34,21 +35,50 @@ public sealed class RamAssemblyHint : MonoBehaviour
             return;
         var allInstalled = m_Slots.Length > 0;
         foreach (var slot in m_Slots)
-            allInstalled &= slot != null && slot.Socket != null && slot.Socket.hasSelection;
+            allInstalled &= slot != null && slot.TryGetComponent<RamPressSlot>(out var installed) && installed.State == RamPressState.Installed;
         if (allInstalled)
         {
             m_Label.text = "<b>MEMÓRIAS RAM INSTALADAS</b>\nOs quatro slots estão ocupados.";
             return;
         }
 
-        RamSlotLatches focusedSlot = null;
+        RamSlotLatches focusedSlot = m_PressCoordinator != null && m_PressCoordinator.FocusedSlot != null
+            ? m_PressCoordinator.FocusedSlot.GetComponent<RamSlotLatches>() : null;
         foreach (var slot in m_Slots)
         {
-            if (slot != null && slot.IsFocused)
+            if (focusedSlot == null && slot != null && slot.IsFocused)
             {
                 focusedSlot = slot;
                 break;
             }
+        }
+
+        if (focusedSlot == null)
+        {
+            foreach (var slot in m_Slots)
+            {
+                if (slot != null && slot.TryGetComponent<RamPressSlot>(out var staged) &&
+                    (staged.State == RamPressState.Positioned || staged.State == RamPressState.Seating))
+                {
+                    focusedSlot = slot;
+                    break;
+                }
+            }
+        }
+
+        var pressSlot = focusedSlot != null ? focusedSlot.GetComponent<RamPressSlot>() : null;
+        if (pressSlot != null && pressSlot.State == RamPressState.Positioned)
+        {
+            var action = pressSlot.Feedback == RamPressFeedback.OneThumb ? "Use os DOIS POLEGARES, um de cada mão." :
+                pressSlot.Feedback == RamPressFeedback.Misaligned ? "Mantenha os dois lados alinhados. Não force." :
+                "Um polegar em cada extremidade superior.";
+            m_Label.text = $"<b>{focusedSlot.name.Replace("RAM_SLOT_", "SLOT ")} — PRESSIONAR</b>\n{action}\nPressione reto para baixo, os dois juntos.";
+            return;
+        }
+        if (pressSlot != null && pressSlot.State == RamPressState.Seating)
+        {
+            m_Label.text = "<b>ENCAIXANDO A MEMÓRIA RAM</b>\nAguarde o fechamento das duas travas.";
+            return;
         }
         if (focusedSlot == null)
         {
@@ -74,7 +104,7 @@ public sealed class RamAssemblyHint : MonoBehaviour
         if (focusedSlot == null)
             m_Label.text = "<b>PREPARAR A MEMÓRIA RAM</b>\nAbra as duas travas do slot escolhido.\nFaça pinça nas travas e mova-as para fora.";
         else if (focusedSlot.Socket.hasSelection)
-            m_Label.text = $"<b>{focusedSlot.name.Replace("RAM_SLOT_", "SLOT ")}</b>\nMemória RAM instalada.";
+            m_Label.text = $"<b>{focusedSlot.name.Replace("RAM_SLOT_", "SLOT ")}</b>\nMemória RAM instalada. Travas fechadas.";
         else if (!focusedSlot.IsOpen)
             m_Label.text = $"<b>{focusedSlot.name.Replace("RAM_SLOT_", "SLOT ")}</b>\nAbra as DUAS travas para inserir a RAM.\nFaça pinça e mova cada trava para fora.";
         else

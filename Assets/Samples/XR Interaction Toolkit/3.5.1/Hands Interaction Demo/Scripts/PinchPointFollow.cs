@@ -49,6 +49,10 @@ namespace UnityEngine.XR.Interaction.Toolkit.Samples.Hands
         IXRRayProvider m_RayProvider;
         bool m_HasRayProvider;
         OneEuroFilterVector3 m_OneEuroFilterVector3;
+#if XR_HANDS_1_5_OR_NEWER
+        InputSystem.XR.TrackedPoseDriver m_AimPoseDriver;
+        bool m_DrivesAimPose;
+#endif
 
 #pragma warning disable CS0618 // Type or member is obsolete
         readonly QuaternionTweenableVariable m_QuaternionTweenableVariable = new QuaternionTweenableVariable();
@@ -77,6 +81,11 @@ namespace UnityEngine.XR.Interaction.Toolkit.Samples.Hands
                 m_HasRayProvider = true;
             }
             m_HasTargetRotationTransform = m_TargetRotation != null;
+#if XR_HANDS_1_5_OR_NEWER
+            m_AimPoseDriver = m_HasTargetRotationTransform
+                ? m_TargetRotation.GetComponent<InputSystem.XR.TrackedPoseDriver>()
+                : null;
+#endif
             m_BindingsGroup.AddBinding(m_QuaternionTweenableVariable.Subscribe(newValue => transform.rotation = newValue));
 #else
             Debug.LogWarning("PinchPointFollow requires XR Hands (com.unity.xr.hands) 1.2.0 or newer. Disabling component.", this);
@@ -93,6 +102,11 @@ namespace UnityEngine.XR.Interaction.Toolkit.Samples.Hands
             m_BindingsGroup.Clear();
             if (m_XRHandTrackingEvents != null)
                 m_XRHandTrackingEvents.jointsUpdated.RemoveListener(OnJointsUpdated);
+#if XR_HANDS_1_5_OR_NEWER
+            if (m_DrivesAimPose && m_AimPoseDriver != null)
+                m_AimPoseDriver.enabled = true;
+            m_DrivesAimPose = false;
+#endif
 #endif
         }
 
@@ -110,9 +124,7 @@ namespace UnityEngine.XR.Interaction.Toolkit.Samples.Hands
                 if (commonHandGestures != null && commonHandGestures.TryGetPinchPose(out var pinchPose))
                 {
                     // Protect against platforms returning bad data like (NaN, NaN, NaN)
-                    if (!float.IsNaN(pinchPose.position.x) &&
-                        !float.IsNaN(pinchPose.position.y) &&
-                        !float.IsNaN(pinchPose.position.z))
+                    if (IsFinite(pinchPose.position))
                     {
                         position = pinchPose.position;
                         return true;
@@ -136,67 +148,93 @@ namespace UnityEngine.XR.Interaction.Toolkit.Samples.Hands
             }
 
             position = Vector3.Lerp(thumbTipPose.position, indexTipPose.position, 0.5f);
-            return true;
+            return IsFinite(position);
         }
+
+        static bool IsFinite(Vector3 value) =>
+            float.IsFinite(value.x) && float.IsFinite(value.y) && float.IsFinite(value.z);
+
+#if XR_HANDS_1_5_OR_NEWER
+        static bool TryGetHandAim(XRHandJointsUpdatedEventArgs args, out Pose aim)
+        {
+            aim = Pose.identity;
+            var hand = args.hand;
+            if (!hand.isTracked || (hand.handedness != Handedness.Left && hand.handedness != Handedness.Right))
+                return false;
+
+            var hasWrist = hand.GetJoint(XRHandJointID.Wrist).TryGetPose(out var wrist) && IsFinite(wrist.position);
+            var hasIndex = hand.GetJoint(XRHandJointID.IndexProximal).TryGetPose(out var index) && IsFinite(index.position);
+            var direction = hasWrist && hasIndex ? index.position - wrist.position : Vector3.zero;
+            if (direction.sqrMagnitude > 0.000001f)
+            {
+                // The native gesture ray can point across the hand even while its aim flags are valid.
+                // Use the same tracked hand axis across frames so crossing that angle cannot flip the ray.
+                var up = Mathf.Abs(Vector3.Dot(direction.normalized, Vector3.up)) > 0.99f
+                    ? Vector3.forward
+                    : Vector3.up;
+                aim = new Pose(index.position, Quaternion.LookRotation(direction, up));
+                return true;
+            }
+
+            var gestures = hand.handedness == Handedness.Left
+                ? args.subsystem?.leftHandCommonGestures
+                : args.subsystem?.rightHandCommonGestures;
+            if (gestures != null && gestures.TryGetAimPose(out aim) && UsableAim(aim, hasWrist, wrist.position))
+                return true;
+
+            var device = hand.handedness == Handedness.Left ? MetaAimHand.left : MetaAimHand.right;
+            if (device != null && device.isTracked.ReadValue() > 0f &&
+                ((MetaAimFlags)device.aimFlags.ReadValue() & MetaAimFlags.Valid) != 0)
+            {
+                aim = new Pose(device.devicePosition.ReadValue(), device.deviceRotation.ReadValue());
+                if (UsableAim(aim, hasWrist, wrist.position))
+                    return true;
+            }
+
+            return false;
+        }
+
+        static bool UsableAim(Pose aim, bool hasWrist, Vector3 wrist)
+        {
+            var norm = Quaternion.Dot(aim.rotation, aim.rotation);
+            if (!IsFinite(aim.position) || !float.IsFinite(norm) || Mathf.Abs(norm - 1f) > 0.05f)
+                return false;
+            if (aim.position.sqrMagnitude < 0.000001f && Quaternion.Angle(aim.rotation, Quaternion.identity) < 0.01f)
+                return false;
+            return !hasWrist || (aim.position - wrist).sqrMagnitude <= 0.25f * 0.25f;
+        }
+#endif
 
         public void OnJointsUpdated(XRHandJointsUpdatedEventArgs args)
         {
-            if (!TryGetPinchPosition(args, out var targetPos))
+            if (!isActiveAndEnabled)
                 return;
 
-            var filteredTargetPos = m_OneEuroFilterVector3.Filter(targetPos, Time.deltaTime);
-
-            // Hand pose data is in local space relative to the XR Origin.
-            transform.localPosition = filteredTargetPos;
+            var hasPinchPosition = TryGetPinchPosition(args, out var targetPos);
+            var deltaTime = Mathf.Max(Time.deltaTime, 0.0001f);
 
 #if XR_HANDS_1_5_OR_NEWER
-            if (m_HasTargetRotationTransform && args.subsystem != null)
+            if (m_HasTargetRotationTransform && TryGetHandAim(args, out var aimPose))
             {
-                var gestures = args.hand.handedness == Handedness.Left
-                    ? args.subsystem.leftHandCommonGestures
-                    : args.subsystem.rightHandCommonGestures;
-                var aimPose = Pose.identity;
-                var hasAimPose = gestures != null && gestures.TryGetAimPose(out aimPose);
-                if (!hasAimPose)
+                if (m_AimPoseDriver != null && m_AimPoseDriver.enabled)
                 {
-                    var aimHand = args.hand.handedness == Handedness.Left ? MetaAimHand.left : MetaAimHand.right;
-                    if (aimHand != null && aimHand.isTracked.ReadValue() > 0f)
-                    {
-                        aimPose = new Pose(aimHand.devicePosition.ReadValue(), aimHand.deviceRotation.ReadValue());
-                        hasAimPose = true;
-                    }
+                    m_AimPoseDriver.enabled = false;
+                    m_DrivesAimPose = true;
                 }
 
-                if (!hasAimPose &&
-                    args.hand.GetJoint(XRHandJointID.Wrist).TryGetPose(out var wristPose) &&
-                    args.hand.GetJoint(XRHandJointID.IndexProximal).TryGetPose(out var indexBasePose))
-                {
-                    var direction = indexBasePose.position - wristPose.position;
-                    if (direction.sqrMagnitude > 0.000001f)
-                    {
-                        var upwards = Vector3.up;
-                        if (Mathf.Abs(Vector3.Dot(direction.normalized, upwards)) > 0.99f)
-                            upwards = Vector3.forward;
-                        aimPose = new Pose(targetPos, Quaternion.LookRotation(direction, upwards));
-                        hasAimPose = true;
-                    }
-                }
-
-                if (hasAimPose)
-                {
-                    var poseDriver = m_TargetRotation.GetComponent<UnityEngine.InputSystem.XR.TrackedPoseDriver>();
-                    if (poseDriver != null)
-                        poseDriver.enabled = false;
-
-                    var trackingOrigin = transform.parent;
-                    m_TargetRotation.SetPositionAndRotation(
-                        trackingOrigin != null ? trackingOrigin.TransformPoint(aimPose.position) : aimPose.position,
-                        trackingOrigin != null ? trackingOrigin.rotation * aimPose.rotation : aimPose.rotation);
-                    transform.rotation = m_TargetRotation.rotation;
-                    return;
-                }
+                // The curve and its visible origin share the same tracked pinch and direction.
+                transform.localPosition = m_OneEuroFilterVector3.Filter(hasPinchPosition ? targetPos : aimPose.position, deltaTime);
+                var trackingOrigin = transform.parent;
+                var worldRotation = trackingOrigin != null ? trackingOrigin.rotation * aimPose.rotation : aimPose.rotation;
+                m_TargetRotation.SetPositionAndRotation(transform.position, worldRotation);
+                transform.rotation = worldRotation;
+                return;
             }
 #endif
+
+            if (!hasPinchPosition)
+                return;
+            transform.localPosition = m_OneEuroFilterVector3.Filter(targetPos, deltaTime);
 
             if (m_HasTargetRotationTransform && m_HasRayProvider)
             {
